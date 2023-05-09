@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<h1>Top {{ x }} IPs de origen más problemáticas</h1>
+<p>Mostrando {{ ips|length }} de {{ total_ips }} resultados</p>
+<table>
+    <tr>
+        <th>IP de origen</th>
+        <th>Número de alertas</th>
+    </tr>
+    {% for ip, total_alertas in ips %}
+    <tr>
+        <td>{{ ip }}</td>
+        <td>{{ total_alertas }}</td>
+    </tr>
+    {% endfor %}
+</table>
+</html>

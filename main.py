@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template
 import sqlite3
 import json
 import csv
@@ -68,3 +68,22 @@ with open('alerts.csv', 'r') as csvfile:
                        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', row)
 
     con.commit()
+
+con.close()
+
+app = Flask(__name__)
+
+@app.route('/top_ips/<int:x>', methods=["GET", "POST"])
+def top_ips(x):
+    con = sqlite3.connect("p1.db")
+    cursor = con.cursor()
+    cursor.execute(
+        "SELECT origen, COUNT(*) AS total_alertas FROM alerta GROUP BY origen ORDER BY total_alertas DESC LIMIT ?", (x,))
+    ips = cursor.fetchall()
+    con.close()
+    return render_template('top_ips.html', ips=ips, x=x)
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
