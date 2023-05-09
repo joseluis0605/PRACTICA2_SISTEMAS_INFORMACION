@@ -68,5 +68,3 @@ with open('alerts.csv', 'r') as csvfile:
                        'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', row)
 
     con.commit()
-
-print ("hola")
