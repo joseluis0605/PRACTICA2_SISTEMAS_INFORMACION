@@ -6,7 +6,7 @@
 <body>
 	<h1>Top 10 IPs más problemáticas</h1>
 	<p>A continuación se muestra un gráfico de barras con las 10 IPs más problemáticas:</p>
-	<img src="{{ url_for('static', filename='/PRACTICA2_SISTEMAS_INFORMACION/top_ips.png') }}" alt="Top 10 IPs más problemáticas">
+	<img src="/static/top_ips.png" alt="Top 10 IPs más problemáticas">
 	<ul>
 	{% for ip in ips %}
 		<li>{{ ip[0] }} - {{ ip[1] }} alertas</li>
