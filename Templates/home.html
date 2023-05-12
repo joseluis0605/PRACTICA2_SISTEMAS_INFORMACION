@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Plantilla con enlaces</title>
+</head>
+<body>
+	<h1>Bienvenido a mi sitio web</h1>
+	<p>Por favor, seleccione una página:</p>
+	<ul>
+		<li><a href="{{ url_for('top_ips') }}">Top IPs</a></li>
+		<li><a href="{{ url_for('top_dispositivos') }}">Top Dispositivos</a></li>
+		<li><a href="{{ url_for('top_peligrosos') }}">Top Peligrosos</a></li>
+	</ul>
+</body>
+</html>

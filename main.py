@@ -74,6 +74,9 @@ con.close()
 
 app = Flask(__name__)
 
+@app.route('/', methods=["GET","POST"])
+def index():
+    return render_template('home.html')
 
 
 @app.route('/top_ips/', methods=["GET", "POST"])
@@ -130,7 +133,32 @@ def top_dispositivos():
 
     return render_template('top_dispositivos.html', dispositivos=dispositivos)
 
+@app.route('/top_peligrosos/', methods=["GET", "POST"])
+def top_peligrosos():
+    con = sqlite3.connect("p1.db")
+    cursor = con.cursor()
+    cursor.execute(
+        "SELECT dispositivo, servicios_inseguros FROM analisis WHERE servicios_inseguros > (servicios / 3) LIMIT 7")
+    dispositivos = cursor.fetchall()
+    con.close()
 
+    # Convertir la lista de tuplas en dos listas separadas para usarlas en el gráfico
+    x_values = [i[0] for i in dispositivos]
+    y_values = [i[1] for i in dispositivos]
+
+    # Crear el gráfico de barras
+    plt.figure(figsize=(9, 6))
+    plt.bar(x_values, y_values)
+
+    # Agregar etiquetas al gráfico
+    plt.title("Dispositivos más peligrosos")
+    plt.xlabel("Dispositivos")
+    plt.ylabel("Número de servicios inseguros")
+
+    # Guardar el gráfico en un archivo
+    plt.savefig("static/top_peligrosos.png")
+
+    return render_template('top_peligrosos.html', dispositivos=dispositivos)
 
 if __name__ == '__main__':
     app.run(debug=True)
