@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Últimas Vulnerabilidades</title>
+</head>
+<body>
+    <h1>Últimas Vulnerabilidades</h1>
+    <ul>
+        {% for vuln in vulnerabilidades %}
+            <li>
+                <h3>{{ vuln['id'] }}</h3>
+                <p>{{ vuln['descripcion'] }}</p>
+                <p>{{ vuln['fecha'] }}</p>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

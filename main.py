@@ -3,6 +3,7 @@ import sqlite3
 import json
 import csv
 import matplotlib.pyplot as plt
+import requests
 
 con = sqlite3.connect('p1.db')
 
@@ -159,6 +160,26 @@ def top_peligrosos():
     plt.savefig("static/top_peligrosos.png")
 
     return render_template('top_peligrosos.html', dispositivos=dispositivos)
+
+
+@app.route('/ultimas_vulnerabilidades/', methods=["GET", "POST"])
+def ultimas_vulnerabilidades():
+    # Hacer una solicitud HTTP a la API de cve-search.org
+    response = requests.get('https://cve.circl.lu/api/last')
+
+    # Procesar los datos JSON que devuelve la API
+    if response.status_code == 200:
+        data = response.json()
+        vulnerabilidades = []
+        for i in range(10):
+            vuln = {}
+            vuln['id'] = data[i]['id']
+            vuln['descripcion'] = data[i]['summary']
+            vuln['fecha'] = data[i]['Published']
+            vulnerabilidades.append(vuln)
+        return render_template('ultimas_vulnerabilidades.html', vulnerabilidades=vulnerabilidades)
+    else:
+        return 'No se pudo obtener los datos de la API de cve-search.org'
 
 if __name__ == '__main__':
     app.run(debug=True)
