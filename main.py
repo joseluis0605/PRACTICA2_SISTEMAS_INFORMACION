@@ -90,6 +90,7 @@ def top_ips():
     y_values = [i[1] for i in ips]
 
     # Crear el gráfico de barras
+    plt.figure(figsize=(17, 6))
     plt.bar(x_values, y_values)
 
     # Agregar etiquetas al gráfico
@@ -98,10 +99,36 @@ def top_ips():
     plt.ylabel("Número de alertas")
 
     # Guardar el gráfico en un archivo
-    plt.savefig("top_ips.png")
+    plt.savefig("static/top_ips.png")
 
     return render_template('top_ips.html', ips=ips)
 
+@app.route('/top_dispositivos/', methods=["GET", "POST"])
+def top_dispositivos():
+    con = sqlite3.connect("p1.db")
+    cursor = con.cursor()
+    cursor.execute(
+        "SELECT dispositivo, servicios_inseguros + vulnerabilidades_detectadas AS servicios_vulnerables FROM analisis DESC LIMIT 10")
+    dispositivos = cursor.fetchall()
+    con.close()
+
+    # Convertir la lista de tuplas en dos listas separadas para usarlas en el gráfico
+    x_values = [i[0] for i in dispositivos]
+    y_values = [i[1] for i in dispositivos]
+
+    # Crear el gráfico de barras
+    plt.figure(figsize=(9, 6))
+    plt.bar(x_values, y_values)
+
+    # Agregar etiquetas al gráfico
+    plt.title("Top 10 dispositivos más vulnerables")
+    plt.xlabel("Dispositivos")
+    plt.ylabel("Número de vulnerabilidades")
+
+    # Guardar el gráfico en un archivo
+    plt.savefig("static/top_dispositivos.png")
+
+    return render_template('top_dispositivos.html', dispositivos=dispositivos)
 
 
 
