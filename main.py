@@ -2,6 +2,7 @@ from flask import Flask, render_template
 import sqlite3
 import json
 import csv
+import matplotlib.pyplot as plt
 
 con = sqlite3.connect('p1.db')
 
@@ -73,15 +74,34 @@ con.close()
 
 app = Flask(__name__)
 
-@app.route('/top_ips/<int:x>', methods=["GET", "POST"])
-def top_ips(x):
+
+
+@app.route('/top_ips/', methods=["GET", "POST"])
+def top_ips():
     con = sqlite3.connect("p1.db")
     cursor = con.cursor()
     cursor.execute(
-        "SELECT origen, COUNT(*) AS total_alertas FROM alerta GROUP BY origen ORDER BY total_alertas DESC LIMIT ?", (x,))
+        "SELECT origen, COUNT(*) AS total_alertas FROM alerta WHERE prioridad = 1 GROUP BY origen ORDER BY total_alertas DESC LIMIT 10")
     ips = cursor.fetchall()
     con.close()
-    return render_template('top_ips.html', ips=ips, x=x)
+
+    # Convertir la lista de tuplas en dos listas separadas para usarlas en el gráfico
+    x_values = [i[0] for i in ips]
+    y_values = [i[1] for i in ips]
+
+    # Crear el gráfico de barras
+    plt.bar(x_values, y_values)
+
+    # Agregar etiquetas al gráfico
+    plt.title("Top 10 IPs más problemáticas")
+    plt.xlabel("IPs")
+    plt.ylabel("Número de alertas")
+
+    # Guardar el gráfico en un archivo
+    plt.savefig("top_ips.png")
+
+    return render_template('top_ips.html', ips=ips)
+
 
 
 

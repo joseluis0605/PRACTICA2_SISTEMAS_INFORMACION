@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
-<h1>Top {{ x }} IPs de origen más problemáticas</h1>
-<p>Mostrando {{ ips|length }} de {{ total_ips }} resultados</p>
-<table>
-    <tr>
-        <th>IP de origen</th>
-        <th>Número de alertas</th>
-    </tr>
-    {% for ip, total_alertas in ips %}
-    <tr>
-        <td>{{ ip }}</td>
-        <td>{{ total_alertas }}</td>
-    </tr>
-    {% endfor %}
-</table>
+<html>
+<head>
+	<title>Top 10 IPs más problemáticas</title>
+</head>
+<body>
+	<h1>Top 10 IPs más problemáticas</h1>
+	<p>A continuación se muestra un gráfico de barras con las 10 IPs más problemáticas:</p>
+	<img src="{{ url_for('static', filename='/PRACTICA2_SISTEMAS_INFORMACION/top_ips.png') }}" alt="Top 10 IPs más problemáticas">
+	<ul>
+	{% for ip in ips %}
+		<li>{{ ip[0] }} - {{ ip[1] }} alertas</li>
+	{% endfor %}
+	</ul>
+</body>
 </html>
+
