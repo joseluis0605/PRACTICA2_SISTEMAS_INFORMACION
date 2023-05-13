@@ -4,7 +4,7 @@ import json
 import csv
 import matplotlib.pyplot as plt
 import requests
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 import login
 
 con = sqlite3.connect('p1.db')
@@ -78,7 +78,8 @@ con.close()
 def usuarios_bd():
     con = sqlite3.connect('p1.db')
     cursor = con.cursor()
-    cursor.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT,username TEXT NOT NULL,password TEXT NOT NULL)")
+    cursor.execute("DROP TABLE IF  EXISTS users")
+    cursor.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT,username TEXT UNIQUE NOT NULL,password TEXT NOT NULL)")
     con.close()
 
 def insert_usuarios(username, passwd):
@@ -91,11 +92,14 @@ def insert_usuarios(username, passwd):
 def check(username, passwd):
     con = sqlite3.connect('p1.db')
     cursor = con.cursor()
-    cursor.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, passwd))
+    cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
     resultado = cursor.fetchone()
     con.commit()
     con.close()
-    return resultado
+    if resultado:
+        return True
+    else:
+        return False
 
 
 app = Flask(__name__)
