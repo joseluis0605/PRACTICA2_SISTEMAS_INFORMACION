@@ -4,6 +4,7 @@ import json
 import csv
 import matplotlib.pyplot as plt
 import requests
+from werkzeug.security import generate_password_hash
 
 con = sqlite3.connect('p1.db')
 
@@ -88,20 +89,22 @@ def home():
 
 @app.route('/login', methods=['POST'])
 def login():
-    '''
-    username = request.form['username']
-    password = request.form['password']
-
-    '''
-
-
-    # Aquí deberías agregar la lógica de autenticación
-    # Si las credenciales son válidas, redirecciona al usuario a una página de éxito
-    # Si no son válidas, muestra un mensaje de error
 
     return render_template('home.html')
 
+@app.route('/registro', methods=['POST', "GET"])
+def registro():
+    return render_template("registro.html")
 
+@app.route('/signup', methods=['POST'])
+def signup():
+    username = request.form['username']
+    password = request.form['password']
+    hashed_password = generate_password_hash(password)
+
+
+
+    return redirect(url_for('success'))
 @app.route('/top_ips/', methods=["GET", "POST"])
 def top_ips():
     con = sqlite3.connect("p1.db")
