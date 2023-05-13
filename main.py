@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, url_for, redirect
 import sqlite3
 import json
 import csv
@@ -75,8 +75,30 @@ con.close()
 
 app = Flask(__name__)
 
-@app.route('/', methods=["GET","POST"])
+
+
+@app.route('/',methods=["GET", "POST"])
 def index():
+    return render_template('loggin.html')
+
+@app.route('/home', methods=["GET", "POST"])
+def home():
+    return render_template('home.html')
+
+
+@app.route('/login', methods=['POST'])
+def login():
+    '''
+    username = request.form['username']
+    password = request.form['password']
+
+    '''
+
+
+    # Aquí deberías agregar la lógica de autenticación
+    # Si las credenciales son válidas, redirecciona al usuario a una página de éxito
+    # Si no son válidas, muestra un mensaje de error
+
     return render_template('home.html')
 
 
