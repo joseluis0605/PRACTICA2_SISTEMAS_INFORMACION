@@ -77,21 +77,16 @@ con.close()
 
 app = Flask(__name__)
 
-
-
+'''
+PRIMERA VISTA DE LA WEB (LOGGIN o REGISTRO) Y UNA VEZ LOGGIN, PAGINA HOME (ENLACES A INFORMACION)
+'''
 @app.route('/',methods=["GET", "POST"])
 def index():
-    login.usuarios_bd()
+    #login.usuarios_bd()
     return render_template('loggin.html')
-
-@app.route('/home', methods=["GET", "POST"])
-def home():
-    return render_template('home.html')
-
 
 @app.route('/login', methods=['POST'])
 def login():
-
     return render_template('home.html')
 
 @app.route('/registro', methods=['POST', "GET"])
@@ -100,13 +95,22 @@ def registro():
 
 @app.route('/signup', methods=['POST'])
 def signup():
+    '''
     username = request.form['username']
     password = request.form['password']
     hashed_password = generate_password_hash(password)
 
-    login.insert_usuarios(username, hashed_password)
+    '''
+
+
+    #login.insert_usuarios(username, hashed_password)
 
     return redirect(url_for('success'))
+
+
+'''
+INFORMACIÓN REFLEJADA EN TABLAS
+'''
 @app.route('/top_ips/', methods=["GET", "POST"])
 def top_ips():
     con = sqlite3.connect("p1.db")
@@ -207,6 +211,10 @@ def ultimas_vulnerabilidades():
         return render_template('ultimas_vulnerabilidades.html', vulnerabilidades=vulnerabilidades)
     else:
         return 'No se pudo obtener los datos de la API de cve-search.org'
+
+
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
