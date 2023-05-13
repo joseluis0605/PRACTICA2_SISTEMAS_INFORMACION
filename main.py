@@ -5,6 +5,7 @@ import csv
 import matplotlib.pyplot as plt
 import requests
 from werkzeug.security import generate_password_hash
+import login
 
 con = sqlite3.connect('p1.db')
 
@@ -80,6 +81,7 @@ app = Flask(__name__)
 
 @app.route('/',methods=["GET", "POST"])
 def index():
+    login.usuarios_bd()
     return render_template('loggin.html')
 
 @app.route('/home', methods=["GET", "POST"])
@@ -102,7 +104,7 @@ def signup():
     password = request.form['password']
     hashed_password = generate_password_hash(password)
 
-
+    login.insert_usuarios(username, hashed_password)
 
     return redirect(url_for('success'))
 @app.route('/top_ips/', methods=["GET", "POST"])
@@ -137,7 +139,7 @@ def top_dispositivos():
     con = sqlite3.connect("p1.db")
     cursor = con.cursor()
     cursor.execute(
-        "SELECT dispositivo, servicios_inseguros + vulnerabilidades_detectadas AS servicios_vulnerables FROM analisis DESC LIMIT 10")
+        "SELECT dispositivo, servicios_inseguros + vulnerabilidades_detectadas AS servicios_vulnerables FROM analisis GROUP BY dispositivo ORDER BY servicios_vulnerables DESC LIMIT 10")
     dispositivos = cursor.fetchall()
     con.close()
 
