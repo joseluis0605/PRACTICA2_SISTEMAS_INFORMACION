@@ -75,42 +75,75 @@ with open('alerts.csv', 'r') as csvfile:
 
 con.close()
 
+def usuarios_bd():
+    con = sqlite3.connect('p1.db')
+    cursor = con.cursor()
+    cursor.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT,username TEXT NOT NULL,password TEXT NOT NULL)")
+    con.close()
+
+def insert_usuarios(username, passwd):
+    con = sqlite3.connect('p1.db')
+    cursor = con.cursor()
+    cursor.execute("INSERT INTO users(username,password) VALUES (?, ?)", (username, passwd))
+    con.commit()
+    con.close()
+
+def check(username, passwd):
+    con = sqlite3.connect('p1.db')
+    cursor = con.cursor()
+    cursor.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, passwd))
+    resultado = cursor.fetchone()
+    con.commit()
+    con.close()
+    return resultado
+
+
 app = Flask(__name__)
 
-'''
-PRIMERA VISTA DE LA WEB (LOGGIN o REGISTRO) Y UNA VEZ LOGGIN, PAGINA HOME (ENLACES A INFORMACION)
-'''
+
+
 @app.route('/',methods=["GET", "POST"])
 def index():
-    #login.usuarios_bd()
+    usuarios_bd()
     return render_template('loggin.html')
 
-@app.route('/login', methods=['POST'])
-def login():
+@app.route('/home', methods=["GET", "POST"])
+def home():
     return render_template('home.html')
+
+
+@app.route('/login', methods=['POST', 'GET'])
+def login():
+    username = ''
+    hashed_password = ''
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        hashed_password = generate_password_hash(password)
+
+    resultado = check(username, hashed_password)
+
+    if resultado:
+        # usuario encontrado en la base de datos, iniciar sesión
+        return render_template('home.html')
+    else:
+        # usuario no encontrado en la base de datos, mostrar mensaje de error
+        return render_template('loggin.html')
+
 
 @app.route('/registro', methods=['POST', "GET"])
 def registro():
     return render_template("registro.html")
 
-@app.route('/signup', methods=['POST'])
+@app.route('/signup', methods=['POST', "GET"])
 def signup():
-    '''
     username = request.form['username']
     password = request.form['password']
     hashed_password = generate_password_hash(password)
 
-    '''
+    insert_usuarios(username, hashed_password)
 
-
-    #login.insert_usuarios(username, hashed_password)
-
-    return redirect(url_for('success'))
-
-
-'''
-INFORMACIÓN REFLEJADA EN TABLAS
-'''
+    return render_template('success.html')
 @app.route('/top_ips/', methods=["GET", "POST"])
 def top_ips():
     con = sqlite3.connect("p1.db")
@@ -211,10 +244,6 @@ def ultimas_vulnerabilidades():
         return render_template('ultimas_vulnerabilidades.html', vulnerabilidades=vulnerabilidades)
     else:
         return 'No se pudo obtener los datos de la API de cve-search.org'
-
-
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)
