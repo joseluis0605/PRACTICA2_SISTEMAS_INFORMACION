@@ -88,7 +88,6 @@ TRATAMIENTO DE USUARIOS
 def usuarios_bd():
     con = sqlite3.connect('p1.db')
     cursor = con.cursor()
-    cursor.execute("DROP TABLE IF  EXISTS users")
     cursor.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT,username TEXT UNIQUE NOT NULL,password TEXT NOT NULL)")
     con.close()
 
@@ -146,6 +145,9 @@ dispositivos_y_pred = regr.predict(dispositivos_x_predict)
 print("Mean squared error: %.2f" % mean_squared_error(dispositivos_y_predict, dispositivos_y_pred))
 
 # Plot outputs
+plt.title("Regresion lineal")
+plt.xlabel("Servicios inseguros")
+plt.ylabel("¿Es peligroso?")
 plt.scatter(dispositivos_x_predict, dispositivos_y_predict, color="black")
 plt.plot(dispositivos_x_predict, dispositivos_y_pred, color="blue", linewidth=3)
 plt.xticks(())
@@ -322,7 +324,7 @@ def top_dispositivos():
     con = sqlite3.connect("p1.db")
     cursor = con.cursor()
     cursor.execute(
-        "SELECT dispositivo, servicios_inseguros + vulnerabilidades_detectadas AS servicios_vulnerables FROM analisis GROUP BY dispositivo ORDER BY servicios_vulnerables DESC LIMIT 10")
+        "SELECT dispositivo, servicios_inseguros + vulnerabilidades_detectadas AS servicios_vulnerables FROM analisis GROUP BY dispositivo ORDER BY servicios_vulnerables DESC LIMIT 5")
     dispositivos = cursor.fetchall()
     con.close()
 
@@ -335,7 +337,7 @@ def top_dispositivos():
     plt.bar(x_values, y_values)
 
     # Agregar etiquetas al gráfico
-    plt.title("Top 10 dispositivos más vulnerables")
+    plt.title("Top 5 dispositivos más vulnerables")
     plt.xlabel("Dispositivos")
     plt.ylabel("Número de vulnerabilidades")
 
