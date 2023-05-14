@@ -5,9 +5,10 @@ import json
 import csv
 import matplotlib.pyplot as plt
 import requests
+from sklearn.ensemble import RandomForestClassifier
 from werkzeug.security import generate_password_hash, check_password_hash
 from sklearn import datasets, linear_model
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.metrics import mean_squared_error, r2_score, confusion_matrix
 from sklearn.tree import DecisionTreeClassifier, export_graphviz
 import graphviz
 
@@ -187,7 +188,46 @@ graph.format = 'png'
 graph.render('static/tree')
 
 
+'''
+##############################################################
+RANDOM FOREST
+##############################################################
+'''
 
+# Convert data to pandas DataFrame
+df_train = pd.DataFrame(dispositivos_train)
+df_predict = pd.DataFrame(dispositivos_predict)
+
+df_train = df_train.drop('id', axis=1)
+df_predict = df_predict.drop('id', axis=1)
+
+# Split features and labels
+X_train = df_train.drop('peligroso', axis=1)
+y_train = df_train['peligroso']
+X_predict = df_predict.drop('peligroso', axis=1)
+y_predict = df_predict['peligroso']
+
+# Create random forest classifier
+rf = RandomForestClassifier(max_depth=2, random_state=0,n_estimators=10)
+
+# Fit the model to the training data
+rf.fit(X_train, y_train)
+
+# Make predictions using the test data
+y_pred = rf.predict(X_predict)
+
+# Print the confusion matrix
+cm = confusion_matrix(y_predict, y_pred)
+print(cm)
+
+# Generate a diagram of the first tree in the forest
+dot_data = export_graphviz(rf.estimators_[0], out_file=None,
+                           feature_names=X_train.columns,
+                           class_names=['no_peligroso', 'peligroso'],
+                           filled=True, rounded=True, special_characters=True)
+graph = graphviz.Source(dot_data)
+graph.format = 'png'
+graph.render('static/forest')
 
 
 app = Flask(__name__)
@@ -353,7 +393,6 @@ def ultimas_vulnerabilidades():
 
 @app.route('/cmi',methods=["GET", "POST"])
 def cmi():
-
     return render_template('cmi.html')
 
 if __name__ == '__main__':
