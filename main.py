@@ -108,6 +108,46 @@ def check(username, passwd):
     else:
         return False
 
+'''
+##############################################################
+REGRESION LINEAL
+##############################################################
+'''
+
+with open('devices_IA_clases.json') as f:
+    dispositivos_train = json.load(f)
+
+with open('devices_IA_predecir_v2.json') as f:
+    dispositivos_predict = json.load(f)
+
+dispositivos_x_train = []
+dispositivos_y_train = []
+dispositivos_y_predict = []
+dispositivos_x_predict = []
+
+for dispositivo in dispositivos_train:
+    dispositivos_x_train.append([dispositivo['servicios_inseguros']])
+    dispositivos_y_train.append(dispositivo['peligroso'])
+
+for dispositivo in dispositivos_predict:
+    dispositivos_x_predict.append([dispositivo['servicios_inseguros']])
+    dispositivos_y_predict.append(dispositivo['peligroso'])
+
+# Create linear regression object
+regr = linear_model.LinearRegression()
+# Train the model using the training sets
+regr.fit(dispositivos_x_train, dispositivos_y_train)
+# Make predictions using the testing set
+dispositivos_y_pred = regr.predict(dispositivos_x_predict)
+# The mean squared error
+print("Mean squared error: %.2f" % mean_squared_error(dispositivos_y_predict, dispositivos_y_pred))
+
+# Plot outputs
+plt.scatter(dispositivos_x_predict, dispositivos_y_predict, color="black")
+plt.plot(dispositivos_x_predict, dispositivos_y_pred, color="blue", linewidth=3)
+plt.xticks(())
+plt.yticks(())
+plt.savefig('static/regresion_lineal.png')
 
 app = Flask(__name__)
 
