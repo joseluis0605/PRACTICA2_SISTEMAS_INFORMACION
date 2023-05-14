@@ -77,6 +77,11 @@ with open('alerts.csv', 'r') as csvfile:
 
 con.close()
 
+'''
+##############################################################
+TRATAMIENTO DE USUARIOS
+##############################################################
+'''
 def usuarios_bd():
     con = sqlite3.connect('p1.db')
     cursor = con.cursor()
@@ -107,7 +112,11 @@ def check(username, passwd):
 app = Flask(__name__)
 
 
-
+'''
+##############################################################
+PRIMERA PAGINA Y HOME (HTML CON ENLACES)
+##############################################################
+'''
 @app.route('/',methods=["GET", "POST"])
 def index():
     usuarios_bd()
@@ -117,7 +126,11 @@ def index():
 def home():
     return render_template('home.html')
 
-
+'''
+##############################################################
+LO RELACIONADO CON EL LOGIN
+##############################################################
+'''
 @app.route('/login', methods=['POST', 'GET'])
 def login():
     username = ''
@@ -150,6 +163,12 @@ def signup():
     insert_usuarios(username, hashed_password)
 
     return render_template('success.html')
+
+'''
+##############################################################
+ENLACES QUE REDIRECCIONAN A LAS GRAFICAS Y AL CUADRO DE MANDOS
+##############################################################
+'''
 @app.route('/top_ips/', methods=["GET", "POST"])
 def top_ips():
     con = sqlite3.connect("p1.db")
@@ -250,6 +269,11 @@ def ultimas_vulnerabilidades():
         return render_template('ultimas_vulnerabilidades.html', vulnerabilidades=vulnerabilidades)
     else:
         return 'No se pudo obtener los datos de la API de cve-search.org'
+
+@app.route('/cmi',methods=["GET", "POST"])
+def cmi():
+
+    return render_template('cmi.html')
 
 if __name__ == '__main__':
     app.run(debug=True)
