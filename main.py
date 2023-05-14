@@ -5,6 +5,8 @@ import csv
 import matplotlib.pyplot as plt
 import requests
 from werkzeug.security import generate_password_hash, check_password_hash
+from sklearn import datasets, linear_model
+from sklearn.metrics import mean_squared_error, r2_score
 import login
 
 con = sqlite3.connect('p1.db')
