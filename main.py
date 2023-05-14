@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, url_for, redirect
+import pandas as pd
 import sqlite3
 import json
 import csv
@@ -7,7 +8,8 @@ import requests
 from werkzeug.security import generate_password_hash, check_password_hash
 from sklearn import datasets, linear_model
 from sklearn.metrics import mean_squared_error, r2_score
-import login
+from sklearn.tree import DecisionTreeClassifier, export_graphviz
+import graphviz
 
 con = sqlite3.connect('p1.db')
 
@@ -148,6 +150,45 @@ plt.plot(dispositivos_x_predict, dispositivos_y_pred, color="blue", linewidth=3)
 plt.xticks(())
 plt.yticks(())
 plt.savefig('static/regresion_lineal.png')
+
+'''
+##############################################################
+DECISION TREE
+##############################################################
+'''
+
+with open('devices_IA_clases.json') as f:
+    dispositivos_train = json.load(f)
+
+with open('devices_IA_predecir_v2.json') as f:
+    dispositivos_predict = json.load(f)
+
+# Convertir los datos en un DataFrame de Pandas
+df_train = pd.DataFrame(dispositivos_train)
+df_predict = pd.DataFrame(dispositivos_predict)
+
+# Seleccionar las columnas relevantes
+X_train = df_train[['servicios', 'servicios_inseguros']]
+y_train = df_train['peligroso']
+X_predict = df_predict[['servicios', 'servicios_inseguros']]
+
+# Crear el clasificador de árbol de decisión
+tree = DecisionTreeClassifier()
+tree.fit(X_train, y_train)
+
+# Generar el grafo del árbol de decisión y guardarlo en una imagen
+dot_data = export_graphviz(tree, out_file=None,
+                           feature_names=['servicios', 'servicios_inseguros'],
+                           class_names=['No peligroso', 'Peligroso'],
+                           filled=True, rounded=True,
+                           special_characters=True)
+graph = graphviz.Source(dot_data)
+graph.format = 'png'
+graph.render('static/tree')
+
+
+
+
 
 app = Flask(__name__)
 
