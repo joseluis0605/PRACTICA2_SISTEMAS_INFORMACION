@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Top 10 IPs más problemáticas</title>
+	<title>Top IPs más problemáticas</title>
 </head>
 <body>
-	<h1>Top 10 IPs más problemáticas</h1>
-	<p>A continuación se muestra un gráfico de barras con las 10 IPs más problemáticas:</p>
-	<img src="/static/top_ips.png" alt="Top 10 IPs más problemáticas">
+	<h1>Top  IPs más problemáticas</h1>
+	<p>A continuación se muestra un gráfico de barras con las IPs más problemáticas:</p>
+	<img src="/static/top_ips.png" alt="Top IPs más problemáticas">
 	<ul>
 	{% for ip in ips %}
 		<li>{{ ip[0] }} - {{ ip[1] }} alertas</li>

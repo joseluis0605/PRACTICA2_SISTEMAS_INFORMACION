@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, url_for, redirect
+from flask import Flask, render_template, request, url_for, redirect, flash
 import pandas as pd
 import sqlite3
 import json
@@ -176,7 +176,7 @@ plt.savefig('static/regresion_lineal.png')
 DECISION TREE
 ##############################################################
 '''
-
+'''
 with open('devices_IA_clases.json') as f:
     dispositivos_train = json.load(f)
 
@@ -206,6 +206,8 @@ graph = graphviz.Source(dot_data)
 graph.format = 'png'
 graph.render('static/tree')
 
+'''
+
 
 
 
@@ -213,6 +215,7 @@ graph.render('static/tree')
 ##############################################################
 RANDOM FOREST
 ##############################################################
+'''
 '''
 
 # Convert data to pandas DataFrame
@@ -251,9 +254,10 @@ graph.format = 'png'
 graph.render('static/forest')
 
 
+'''
+
+
 app = Flask(__name__)
-
-
 '''
 ##############################################################
 PRIMERA PAGINA Y HOME (HTML CON ENLACES)
@@ -314,86 +318,104 @@ def signup():
 ENLACES QUE REDIRECCIONAN A LAS GRAFICAS Y AL CUADRO DE MANDOS
 ##############################################################
 '''
+
+@app.route('/numeroIPsInsertar/', methods=["GET", "POST"])
+def numeroIPsInsertar():
+    return render_template("numeroIPs.html")
 @app.route('/top_ips/', methods=["GET", "POST"])
 def top_ips():
-    con = sqlite3.connect("p1.db")
-    cursor = con.cursor()
-    cursor.execute(
-        "SELECT origen, COUNT(*) AS total_alertas FROM alerta WHERE prioridad = 1 GROUP BY origen ORDER BY total_alertas DESC LIMIT 10")
-    ips = cursor.fetchall()
-    con.close()
+    if request.method == 'POST':
+        cantidad = int(request.form.get('cantidad'))
+        if cantidad <= 0:
+            flash('Ingrese un número mayor a 0.')
+            return redirect('/top_ips/')
+        con = sqlite3.connect("p1.db")
+        cursor = con.cursor()
+        cursor.execute(
+            f"SELECT origen, COUNT(*) AS total_alertas FROM alerta WHERE prioridad = 1 GROUP BY origen ORDER BY total_alertas DESC LIMIT {cantidad}")
+        ips = cursor.fetchall()
+        con.close()
+        x_values = [i[0] for i in ips]
+        y_values = [i[1] for i in ips]
+        plt.figure(figsize=(17, 6))
+        plt.bar(x_values, y_values)
+        plt.title("Top IPs más problemáticas")
+        plt.xlabel("IPs")
+        plt.ylabel("Número de alertas")
+        plt.savefig("static/top_ips.png")
+        return render_template('top_ips.html', ips=ips)
+    return render_template('top_ips.html')
 
-    # Convertir la lista de tuplas en dos listas separadas para usarlas en el gráfico
-    x_values = [i[0] for i in ips]
-    y_values = [i[1] for i in ips]
 
-    # Crear el gráfico de barras
-    plt.figure(figsize=(17, 6))
-    plt.bar(x_values, y_values)
-
-    # Agregar etiquetas al gráfico
-    plt.title("Top 10 IPs más problemáticas")
-    plt.xlabel("IPs")
-    plt.ylabel("Número de alertas")
-
-    # Guardar el gráfico en un archivo
-    plt.savefig("static/top_ips.png")
-
-    return render_template('top_ips.html', ips=ips)
-
+@app.route('/numeroDispositivoInsertar/', methods=["GET", "POST"])
+def numeroDispositivoInsertar():
+    return render_template("numeroDispositivo.html")
 @app.route('/top_dispositivos/', methods=["GET", "POST"])
 def top_dispositivos():
-    con = sqlite3.connect("p1.db")
-    cursor = con.cursor()
-    cursor.execute(
-        "SELECT dispositivo, servicios_inseguros + vulnerabilidades_detectadas AS servicios_vulnerables FROM analisis GROUP BY dispositivo ORDER BY servicios_vulnerables DESC LIMIT 5")
-    dispositivos = cursor.fetchall()
-    con.close()
+    if request.method == 'POST':
+        cantidad = int(request.form.get('cantidad'))
+        if cantidad <= 0:
+            flash('Ingrese un número mayor a 0.')
+            return redirect('/top_dispositivos/')
+        con = sqlite3.connect("p1.db")
+        cursor = con.cursor()
+        cursor.execute(
+            "SELECT dispositivo, servicios_inseguros + vulnerabilidades_detectadas AS servicios_vulnerables FROM analisis GROUP BY dispositivo ORDER BY servicios_vulnerables DESC LIMIT ?", (cantidad,))
+        dispositivos = cursor.fetchall()
+        con.close()
+        # Convertir la lista de tuplas en dos listas separadas para usarlas en el gráfico
+        x_values = [i[0] for i in dispositivos]
+        y_values = [i[1] for i in dispositivos]
+        # Crear el gráfico de barras
+        plt.figure(figsize=(9, 6))
+        plt.bar(x_values, y_values)
+        # Agregar etiquetas al gráfico
+        plt.title("Top {} dispositivos más vulnerables".format(cantidad))
+        plt.xlabel("Dispositivos")
+        plt.ylabel("Número de vulnerabilidades")
+        # Guardar el gráfico en un archivo
+        plt.savefig("static/top_dispositivos.png")
+        return render_template('top_dispositivos.html')
+    else:
+        return render_template('numeroDispositivo.html')
 
-    # Convertir la lista de tuplas en dos listas separadas para usarlas en el gráfico
-    x_values = [i[0] for i in dispositivos]
-    y_values = [i[1] for i in dispositivos]
-
-    # Crear el gráfico de barras
-    plt.figure(figsize=(9, 6))
-    plt.bar(x_values, y_values)
-
-    # Agregar etiquetas al gráfico
-    plt.title("Top 5 dispositivos más vulnerables")
-    plt.xlabel("Dispositivos")
-    plt.ylabel("Número de vulnerabilidades")
-
-    # Guardar el gráfico en un archivo
-    plt.savefig("static/top_dispositivos.png")
-
-    return render_template('top_dispositivos.html', dispositivos=dispositivos)
-
+@app.route('/numeroPeligrosoInsertar/', methods=["GET", "POST"])
+def numeroPeligrosoInsertar():
+    return render_template("numeroPeligroso.html")
 @app.route('/top_peligrosos/', methods=["GET", "POST"])
 def top_peligrosos():
-    con = sqlite3.connect("p1.db")
-    cursor = con.cursor()
-    cursor.execute(
-        "SELECT dispositivo, servicios_inseguros FROM analisis WHERE servicios_inseguros > (servicios / 3) LIMIT 7")
-    dispositivos = cursor.fetchall()
-    con.close()
+    if request.method == 'POST':
+        cantidad = int(request.form.get('cantidad'))
+        if cantidad <= 0:
+            flash('Ingrese un número mayor a 0.')
+            return redirect('/top_peligrosos/')
+        con = sqlite3.connect("p1.db")
+        cursor = con.cursor()
+        cursor.execute(
+            "SELECT dispositivo, servicios_inseguros FROM analisis WHERE servicios_inseguros > (servicios / 3) LIMIT ?", (cantidad,))
+        dispositivos = cursor.fetchall()
+        con.close()
 
-    # Convertir la lista de tuplas en dos listas separadas para usarlas en el gráfico
-    x_values = [i[0] for i in dispositivos]
-    y_values = [i[1] for i in dispositivos]
+        # Convertir la lista de tuplas en dos listas separadas para usarlas en el gráfico
+        x_values = [i[0] for i in dispositivos]
+        y_values = [i[1] for i in dispositivos]
 
-    # Crear el gráfico de barras
-    plt.figure(figsize=(9, 6))
-    plt.bar(x_values, y_values)
+        # Crear el gráfico de barras
+        plt.figure(figsize=(9, 6))
+        plt.bar(x_values, y_values)
 
-    # Agregar etiquetas al gráfico
-    plt.title("Dispositivos más peligrosos")
-    plt.xlabel("Dispositivos")
-    plt.ylabel("Número de servicios inseguros")
+        # Agregar etiquetas al gráfico
+        plt.title("Dispositivos más peligrosos")
+        plt.xlabel("Dispositivos")
+        plt.ylabel("Número de servicios inseguros")
 
-    # Guardar el gráfico en un archivo
-    plt.savefig("static/top_peligrosos.png")
+        # Guardar el gráfico en un archivo
+        plt.savefig("static/top_peligrosos.png")
 
-    return render_template('top_peligrosos.html', dispositivos=dispositivos)
+        return render_template('top_peligrosos.html')
+    else:
+        return render_template('numeroPeligroso.html')
+
 
 
 @app.route('/ultimas_vulnerabilidades/', methods=["GET", "POST"])
