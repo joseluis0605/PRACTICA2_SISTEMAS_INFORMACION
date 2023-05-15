@@ -392,7 +392,7 @@ def top_peligrosos():
         con = sqlite3.connect("p1.db")
         cursor = con.cursor()
         cursor.execute(
-            "SELECT dispositivo, servicios_inseguros FROM analisis WHERE servicios_inseguros > (servicios / 3) LIMIT ?", (cantidad,))
+            "SELECT dispositivo, servicios_inseguros FROM analisis WHERE servicios_inseguros > (servicios / 3) GROUP BY dispositivo ORDER BY servicios_inseguros DESC LIMIT ?", (cantidad,))
         dispositivos = cursor.fetchall()
         con.close()
 
