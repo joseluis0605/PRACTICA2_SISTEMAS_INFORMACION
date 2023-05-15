@@ -91,12 +91,28 @@ def usuarios_bd():
     cursor.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT,username TEXT UNIQUE NOT NULL,password TEXT NOT NULL)")
     con.close()
 
+import sqlite3
+
 def insert_usuarios(username, passwd):
     con = sqlite3.connect('p1.db')
     cursor = con.cursor()
-    cursor.execute("INSERT INTO users(username,password) VALUES (?, ?)", (username, passwd))
-    con.commit()
+
+    # Consultar si el usuario ya existe en la base de datos
+    cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
+    resultado = cursor.fetchone()
+
+    if resultado is None:
+        # El usuario no existe, se puede insertar
+        cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, passwd))
+        con.commit()
+        resultado = True
+    else:
+        # El usuario ya existe, no se realiza la inserción
+        resultado = False
+
     con.close()
+    return resultado
+
 
 def check(username, passwd):
     con = sqlite3.connect('p1.db')
@@ -154,6 +170,7 @@ plt.xticks(())
 plt.yticks(())
 plt.savefig('static/regresion_lineal.png')
 
+
 '''
 ##############################################################
 DECISION TREE
@@ -188,6 +205,8 @@ dot_data = export_graphviz(tree, out_file=None,
 graph = graphviz.Source(dot_data)
 graph.format = 'png'
 graph.render('static/tree')
+
+
 
 
 '''
@@ -283,9 +302,12 @@ def signup():
     password = request.form['password']
     hashed_password = generate_password_hash(password)
 
-    insert_usuarios(username, hashed_password)
+    resultado= insert_usuarios(username, hashed_password)
 
-    return render_template('success.html')
+    if resultado is True:
+        return render_template('success.html')
+    else:
+        return render_template("logginMensaje.html")
 
 '''
 ##############################################################
@@ -399,4 +421,3 @@ def cmi():
 
 if __name__ == '__main__':
     app.run(debug=True)
-

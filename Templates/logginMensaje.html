@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>REGISTRATE OTRA VEZ</title>
+	<style>
+		#error-message {
+			display: none;
+			color: red;
+		}
+	</style>
+	<script>
+		// Función para mostrar el mensaje de error
+		function mostrarMensajeError() {
+			document.getElementById('error-message').style.display = 'block';
+		}
+	</script>
+</head>
+<body>
+	<h1>Registro</h1>
+    <form action="/signup" method="post" onsubmit="mostrarMensajeError()">
+        <label>Nombre de usuario:</label>
+        <input type="text" name="username" required><br>
+        <label>Contraseña:</label>
+        <input type="password" name="password" required><br>
+        <input type="submit" value="Registrarse">
+    </form>
+    <div id="error-message">El usuario ya está registrado.</div>
+</body>
+</html>
