@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, url_for, redirect, flash
+from flask import Flask, render_template, request,  redirect, flash
 import pandas as pd
 import sqlite3
 import json
@@ -6,9 +6,9 @@ import csv
 import matplotlib.pyplot as plt
 import requests
 from sklearn.ensemble import RandomForestClassifier
-from werkzeug.security import generate_password_hash, check_password_hash
-from sklearn import datasets, linear_model
-from sklearn.metrics import mean_squared_error, r2_score, confusion_matrix
+from werkzeug.security import generate_password_hash
+from sklearn import linear_model
+from sklearn.metrics import mean_squared_error, confusion_matrix
 from sklearn.tree import DecisionTreeClassifier, export_graphviz
 import graphviz
 
@@ -176,7 +176,7 @@ plt.savefig('static/regresion_lineal.png')
 DECISION TREE
 ##############################################################
 '''
-'''
+
 with open('devices_IA_clases.json') as f:
     dispositivos_train = json.load(f)
 
@@ -206,7 +206,7 @@ graph = graphviz.Source(dot_data)
 graph.format = 'png'
 graph.render('static/tree')
 
-'''
+
 
 
 
@@ -215,7 +215,6 @@ graph.render('static/tree')
 ##############################################################
 RANDOM FOREST
 ##############################################################
-'''
 '''
 
 # Convert data to pandas DataFrame
@@ -254,7 +253,7 @@ graph.format = 'png'
 graph.render('static/forest')
 
 
-'''
+
 
 
 app = Flask(__name__)
